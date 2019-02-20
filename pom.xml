@@ -83,6 +83,12 @@
 			<scope>provided</scope>
 		</dependency>
 		<!-- Mule Modules -->
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-http</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- Dataweave -->
 		<dependency>
 			<groupId>com.mulesoft.weave</groupId>
@@ -118,17 +124,7 @@
 	</dependencies>
 
 	<!-- Below needed from parent POM when parent POM commented out -->
-	<!--
-	<pluginRepositories>
-		<pluginRepository>
-			<id>mulesoft-release</id>
-			<name>mulesoft release repository</name>
-			<layout>default</layout>
-			<url>http://repository.mulesoft.org/releases/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-	 -->
+	<!-- <pluginRepositories> <pluginRepository> <id>mulesoft-release</id> <name>mulesoft 
+		release repository</name> <layout>default</layout> <url>http://repository.mulesoft.org/releases/</url> 
+		<snapshots> <enabled>false</enabled> </snapshots> </pluginRepository> </pluginRepositories> -->
 </project>

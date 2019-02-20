@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata"
-	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
 	xmlns:spring="http://www.springframework.org/schema/beans" xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:file="http://www.mulesoft.org/schema/mule/file"
@@ -11,32 +12,54 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
-http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 
-	<flow name="AuctionService">
-		<file:inbound-endpoint path="auction" doc:name="Read File auction" />
+	<flow name="auctionService">
+		<composite-source doc:name="Composite Source">
+			<file:inbound-endpoint path="auction" doc:name="Read File auction" />
+			<http:listener config-ref="HTTP_Listener_Configuration"
+				path="/auction" doc:name="HTTP" />
+		</composite-source>
 		<object-to-string-transformer doc:name="Object to String" />
-		<logger level="INFO" message="Consumed message: #[payload]"
+		<logger level="INFO" message="Consumed Message: #[payload]"
 			doc:name="Log Payload" />
 		<logger level="INFO" message="At time: #[function:now]"
 			doc:name="Log TimeStamp" />
+		<request-reply doc:name="Request-Reply">
+			<vm:outbound-endpoint exchange-pattern="one-way"
+				path="split" doc:name="VM:split" />
+			<vm:inbound-endpoint exchange-pattern="one-way"
+				path="result" doc:name="VM:result" />
+		</request-reply>
+		<set-payload
+			value="#['{ &quot;winner&quot; : &quot;' + payload + '&quot; }']"
+			doc:name="Set Payload" />
+		<!-- vm endpoint responsible for pushing result back to test -->
+	</flow>
+
+	<flow name="splitBids">
+		<vm:inbound-endpoint exchange-pattern="one-way"
+			path="split" doc:name="VM:split" />
+		<set-variable variableName="MULE_REPLYTO_STOP" value="true" />
 		<dw:transform-message doc:name="String to Collection"
 			metadata:id="b80101a5-3ad0-430c-af39-e98e962431c4">
-			<dw:input-payload mimeType="application/java"
-				doc:sample="sample_data\string.dwl" />
+			<dw:input-payload doc:sample="sample_data\string.dwl"
+				mimeType="application/java" />
 			<dw:set-payload resource="classpath:StringtoCollection.dwl" />
 		</dw:transform-message>
 		<collection-splitter doc:name="Collection Splitter" />
 		<vm:outbound-endpoint exchange-pattern="one-way"
 			path="process" doc:name="VM:process" />
-		<!-- vm endpoint responsible for pushing result back to test -->
 	</flow>
 
-	<flow name="mule-configFlow">
+	<flow name="processBids">
 		<vm:inbound-endpoint exchange-pattern="one-way"
 			path="process" doc:name="VM:process" />
 		<component class="com.mulesoft.EnricherAuctionComponent"
 			doc:name="EnrichBids Java Component" />
+		<logger message="Enriched Bid: #[payload]" level="INFO"
+			doc:name="Log Individual Bid Payloads" />
 		<collection-aggregator failOnTimeout="true"
 			doc:name="Collection Aggregator" />
 		<component class="com.mulesoft.HighestBidderAuctionComponent"
@@ -47,7 +70,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 		<logger message="At time: #[function:now]" level="INFO"
 			doc:name="Log TimeStamp" />
 		<vm:outbound-endpoint exchange-pattern="one-way"
-			path="auction.service" doc:name="VM: auction.service" />
+			path="result" doc:name="VM: result" />
 	</flow>
 
 </mule>
