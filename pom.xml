@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<parent>
+		<groupId>ddffde6f-7d3c-4208-83ff-aab7c5019587</groupId>
+		<artifactId>api-superpom</artifactId>
+		<version>1.1.0</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.mulesoft.training</groupId>
+	<artifactId>bid-processing</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>mule</packaging>
+	<name>Mule bid-processing Application</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<mule.version>3.9.0</mule.version>
+		<mule.tools.version>1.2</mule.tools.version>
+		<munit.version>1.3.8</munit.version>
+		<mule.munit.support.version>3.9.0</mule.munit.support.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.mule.tools.maven</groupId>
+				<artifactId>mule-app-maven-plugin</artifactId>
+				<version>${mule.tools.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<copyToAppsDirectory>true</copyToAppsDirectory>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.mulesoft.munit.tools</groupId>
+				<artifactId>munit-maven-plugin</artifactId>
+				<version>${munit.version}</version>
+				<executions>
+					<execution>
+						<id>test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<coverage>
+						<runCoverage>true</runCoverage>
+						<formats>
+							<format>html</format>
+						</formats>
+					</coverage>
+				</configuration>
+			</plugin>
+		</plugins>
+		<testResources>
+			<testResource>
+				<directory>src/test/munit</directory>
+			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+	</build>
+
+	<dependencies>
+		<!-- Mule Transports -->
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-file</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-vm</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Mule Modules -->
+		<!-- Dataweave -->
+		<dependency>
+			<groupId>com.mulesoft.weave</groupId>
+			<artifactId>mule-plugin-weave</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- for testing -->
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-spring-config</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.tests</groupId>
+			<artifactId>mule-tests-functional</artifactId>
+			<version>${mule.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.munit</groupId>
+			<artifactId>mule-munit-support</artifactId>
+			<version>${mule.munit.support.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.mulesoft.munit</groupId>
+			<artifactId>munit-runner</artifactId>
+			<version>${munit.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<!-- Below needed from parent POM when parent POM commented out -->
+	<!--
+	<pluginRepositories>
+		<pluginRepository>
+			<id>mulesoft-release</id>
+			<name>mulesoft release repository</name>
+			<layout>default</layout>
+			<url>http://repository.mulesoft.org/releases/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+	 -->
+</project>
