@@ -15,9 +15,15 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 
+	<file:connector name="File" autoDelete="true" streaming="true"
+		validateConnections="true" doc:name="File" />
+	<http:listener-config name="HTTP_Listener_Configuration"
+		host="0.0.0.0" port="8082" doc:name="HTTP Listener Configuration" />
+
 	<flow name="auctionService">
 		<composite-source doc:name="Composite Source">
-			<file:inbound-endpoint path="auction" doc:name="Read File auction" />
+			<file:inbound-endpoint path="auction" doc:name="Read File auction"
+				connector-ref="File" responseTimeout="10000" />
 			<http:listener config-ref="HTTP_Listener_Configuration"
 				path="/auction" doc:name="HTTP" />
 		</composite-source>
@@ -35,13 +41,13 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 		<set-payload
 			value="#['{ &quot;winner&quot; : &quot;' + payload + '&quot; }']"
 			doc:name="Set Payload" />
-		<!-- vm endpoint responsible for pushing result back to test -->
 	</flow>
 
 	<flow name="splitBids">
 		<vm:inbound-endpoint exchange-pattern="one-way"
 			path="split" doc:name="VM:split" />
-		<set-variable variableName="MULE_REPLYTO_STOP" value="true" />
+		<set-variable variableName="MULE_REPLYTO_STOP" value="true"
+			doc:name="Variable" />
 		<dw:transform-message doc:name="String to Collection"
 			metadata:id="b80101a5-3ad0-430c-af39-e98e962431c4">
 			<dw:input-payload doc:sample="sample_data\string.dwl"
